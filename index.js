@@ -90,7 +90,8 @@ app.post('/queue/query', (req, res) => {
     appSlugs = appSlugs.split(',')
   }
   console.log('App Slug: ', appSlugs);
-  const API_KEY = req.header('Authorization');
+  // const API_KEY = req.header('Authorization');
+  const API_KEY = getBaseAuthPassword(req);
   builds.getAllData(appSlugs, API_KEY, from, to, (data) => {
     let timeseries_data = builds.getQueueTimeseriesData(appSlugs, data);
     res.json(timeseries_data);
