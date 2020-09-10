@@ -8,17 +8,13 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-function keepAlive(){
-  fetch('https://BitriseAPI--damo1884.repl.co/')
-    .then(res => res.json())
-    .then((res) => {
-      console.log('Keep Alive');
-    });
+function getBaseAuthPassword(req){
+  const base64Credentials =  req.headers.authorization.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
+  return password;
 }
 
-setInterval(()=>{
-  keepAlive()
-}, 10*1000*60);
 
 app.get('/', (req, res) => {
   console.log('/health check');
@@ -62,7 +58,8 @@ app.post('/builds/query', (req, res) => {
   } else {
     appSlugs = appSlugs.split(',')
   }
-  const API_KEY = req.header('Authorization');
+  // const API_KEY = req.header('Authorization');
+  const API_KEY = getBaseAuthPassword(req);
   builds.getAllData(appSlugs, API_KEY, from, to, (data) => {
     let timeseries_data = builds.getBuildTimeseriesData(appSlugs, data);
     res.json(timeseries_data);
@@ -125,7 +122,8 @@ app.post('/running/query', (req, res) => {
     appSlugs = appSlugs.split(',')
   }
   console.log('App Slug: ', appSlugs);
-  const API_KEY = req.header('Authorization');
+  // const API_KEY = req.header('Authorization');
+  const API_KEY = getBaseAuthPassword(req);
   builds.getAllData(appSlugs, API_KEY, from, to, (data) => {
     let table_data = builds.getBuildTableData(appSlugs, data);
     res.json(table_data);
@@ -156,7 +154,8 @@ app.post('/stats/query', (req, res) => {
     appSlugs = appSlugs.split(',')
   }
   console.log('App Slug: ', appSlugs);
-  const API_KEY = req.header('Authorization');
+  // const API_KEY = req.header('Authorization');
+  const API_KEY = getBaseAuthPassword(req);
   builds.getAllData(appSlugs, API_KEY, from, to, (data) => {
     let table_data = builds.getStatsTableData(appSlugs, data);
     res.json(table_data);
